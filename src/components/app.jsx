@@ -16,8 +16,9 @@ export default class App extends Component {
 		sendPortalCommand({
 			command: 'readVendorConsent',
 		}).then(result => {
-			console.log('Read consent data from global cookie', result);
-			window.location = `consent://${result}`;
+			let obj = JSON.stringify(this.props.store.getVendorConsentsObject().vendorConsents);
+			console.log('Read consent data from global cookie', result + obj);
+			window.location = `consent://${result}/${obj}`;
 		}).catch(err => {
 			log.error('Failed reading global vendor consent cookie', err);
 		});
