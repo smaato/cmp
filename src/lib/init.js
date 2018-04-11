@@ -2,16 +2,30 @@ import { h, render } from 'preact';
 import Promise from 'promise-polyfill';
 import Store from './store';
 import Cmp, { CMP_GLOBAL_NAME } from './cmp';
-import { readVendorConsentCookie, readPublisherConsentCookie } from './cookie/cookie';
+import { readVendorConsentCookie, readPublisherConsentCookie, writeGlobalVendorConsentCookie } from './cookie/cookie';
 import { fetchVendorList, fetchPurposeList } from './vendor';
 import log from './log';
 import pack from '../../package.json';
 import config from './config';
 
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2]);
+}
 
 export function init(configUpdates) {
 	config.update(configUpdates);
 	log.debug('Using configuration:', config);
+
+	const base64 = getParameterByName('code64');
+	if (base64) {
+		writeGlobalVendorConsentCookie(base64, true);
+	}
 
 	// Fetch the current vendor consent before initializing
 	return readVendorConsentCookie()
@@ -34,13 +48,13 @@ export function init(configUpdates) {
 				// If command is queued with an event we will relay its result via postMessage
 				if (event) {
 					cmp.processCommand(command, parameter, result =>
-						event.source.postMessage(JSON.stringify({
+						event.source.postMessage({
 							[CMP_GLOBAL_NAME]: {
 								callId,
 								command,
 								result
 							}
-						}), event.origin));
+						}, event.origin));
 				}
 				else {
 					cmp.processCommand(command, parameter, callback);
