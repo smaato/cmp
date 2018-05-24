@@ -303,6 +303,7 @@ function writeVendorConsentCookie(vendorConsentData) {
 }
 
 export {
+	readCookie,
 	writeCookie,
 	encodeVendorConsentData,
 	decodeVendorConsentData,
