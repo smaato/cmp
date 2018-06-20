@@ -38,6 +38,13 @@
 				};
 				return cmp;
 			}());
+
+			window.__cmp('addEventListener', 'onSubmit', function(result){
+				window.__cmp('getConsentData', null, function(result){
+					console.log('Show consent tool', result.consentData);
+					window.location = `consent://${result.consentData ? result.consentData : ''}`;
+				});
+			});
 		})(window);
 
 		__cmp('showConsentTool');
